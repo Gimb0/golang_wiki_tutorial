@@ -106,6 +106,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	// Store filenames minus the extension in string slice
 	var filenames []string
 
 	for _, file := range files {
@@ -117,6 +118,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	
+	// Compile template with IndexPage struct
 	err = t.Execute(w, IndexPage{"Wiki index", filenames})
 }
 

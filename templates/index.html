@@ -1,16 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang=en>
     <head>
         <title>{{.Title}}</title>
     </head>
 
     <body>
         <h1>Welcome to the wiki made in Golang!</h1>
-        <p>Below is a list of articles you can view/edit</p>
-        <ul>
-            {{range $ind, $value := .FilesList}}
-            <li><a href="/view/{{ $value }}">{{ $value }}</li>
-            {{end}}
-        </ul>
+        <div>
+            <p>Below is a list of articles you can view/edit</p>
+            <ul>{{range $ind, $value := .FilesList}}
+                <li><a href="/view/{{ $value }}">{{ $value }}</a></li>{{end}}
+            </ul>
+        </div>
+        <div>
+            <p>Create a new article</p>
+            <form action="javascript:createArticle();" method="GET">
+                <input type="text" name="Name">
+                <input type="submit" value="Create">
+            </form>
+        </div>
+
+        <script>
+            function createArticle() {
+                var articleName = document.getElementsByName("Name")[0].value;
+                window.location = "/edit/"+articleName
+            }
+        </script>
     </body>
 </html> 

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{.Title}}</title>
+    </head>
+
+    <body>
+        <h1>Welcome to the wiki made in Golang!</h1>
+        <p>Below is a list of articles you can view/edit</p>
+        <ul>
+            {{range $ind, $value := .FilesList}}
+            <li><a href="/view/{{ $value }}">{{ $value }}</li>
+            {{end}}
+        </ul>
+    </body>
+</html> 

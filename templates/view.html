@@ -1,5 +1,13 @@
-<h1> {{.Title}}</h1>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Page Title</title>
+    </head>
 
-<p> [<a href="/edit/{{.Title}}">edit</a>] </p>
-
-<div> {{printf "%s" .Body}} </div>
+    <body>
+        <h1><a href="/">Home</a></h1>
+        <h2> {{.Title}}</h2>
+        <p> [<a href="/edit/{{.Title}}">edit</a>] </p>
+        <div> {{printf "%s" .Body}} </div>
+    </body>
+</html> 

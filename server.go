@@ -8,22 +8,27 @@ import (
 	"regexp"
 )
 
-type Page struct {
+type ArticlePage struct {
 	Title string
 	Body []byte
+}
+
+type IndexPage struct {
+	Title string
+	FilesList []string
 }
 
 var templates = template.Must(template.ParseGlob("./templates/*"))
 var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 
 // Write text to a file in the current directory
-func (p *Page) save() error {
+func (p *ArticlePage) save() error {
 	filename := "data/" + p.Title + ".txt"
 	return ioutil.WriteFile(filename, p.Body, 0600)
 }
 
 // Read an existing file in current directory
-func loadPage(title string) (*Page, error) {
+func loadPage(title string) (*ArticlePage, error) {
 	filename := "data/" + title + ".txt"
 	body, err := ioutil.ReadFile(filename)
 
@@ -31,10 +36,10 @@ func loadPage(title string) (*Page, error) {
 		return nil, err
 	}
 
-	return &Page{Title: title, Body: body}, nil
+	return &ArticlePage{Title: title, Body: body}, nil
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+func renderTemplate(w http.ResponseWriter, tmpl string, p *ArticlePage) {
 	err := templates.ExecuteTemplate(w, tmpl+".html", p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -57,7 +62,7 @@ func editHandler(w http.ResponseWriter, r *http.Request, title string) {
 	// Load existing page or create new one in editor
 	p, err := loadPage(title)
 	if err != nil {
-		p = &Page{Title: title}
+		p = &ArticlePage{Title: title}
 	}
 
 	// Render edit page from template
@@ -67,7 +72,7 @@ func editHandler(w http.ResponseWriter, r *http.Request, title string) {
 func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	// Save form data
 	body := r.FormValue("body")
-	p := &Page{Title: title, Body: []byte(body)}
+	p := &ArticlePage{Title: title, Body: []byte(body)}
 	err := p.save()
 
 	if err != nil {
@@ -95,7 +100,24 @@ func makeHandler(fn func (http.ResponseWriter, *http.Request, string)) http.Hand
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/view/FrontPage", http.StatusFound)
+	// Read files in data directory
+	files, err := ioutil.ReadDir("./data/")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var filenames []string
+
+	for _, file := range files {
+		filenames = append(filenames, file.Name()[:len(file.Name())-4] )
+	}
+	
+	t, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	err = t.Execute(w, IndexPage{"Wiki index", filenames})
 }
 
 func main() {
